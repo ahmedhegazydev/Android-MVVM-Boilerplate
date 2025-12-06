@@ -21,9 +21,24 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
+    <!-- 👇 عشان تقدر تشير لـ NewClass -->
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.androidstudio</depends>
+
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
 
     </extensions>
+
+    <!-- 👇 المهم: الـ actions تبقى برّه extensions -->
+    <actions>
+        <action id="CleanArchitectureGeneratorAction"
+                class="com.example.demo.CleanArchitectureAction"
+                text="Create Clean Architecture"
+                description="Generate MVVM + Hilt project structure">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewClass"/>
+        </action>
+    </actions>
+
 </idea-plugin>

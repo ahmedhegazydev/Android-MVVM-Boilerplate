@@ -18,11 +18,15 @@ repositories {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
-        create("IC", "2025.1.4.1")
+//        create("IC", "2025.1.4.1")
+
+        // Use Android Studio instead of IntelliJ Community
+        androidStudio("2025.1.4.1")   // use the exact version of your AS
+
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
         // Add necessary plugin dependencies for compilation here, example:
-        // bundledPlugin("com.intellij.java")
+         bundledPlugin("com.intellij.java")
     }
 }
 
