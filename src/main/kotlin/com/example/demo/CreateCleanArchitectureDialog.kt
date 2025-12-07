@@ -62,8 +62,8 @@ class CreateCleanArchitectureDialog(project: Project) : DialogWrapper(project, t
         langGroup.add(flutterRadio)
 
         // disable Java & Flutter like in your screenshot
-        javaRadio.isEnabled = false
-        flutterRadio.isEnabled = false
+//        javaRadio.isEnabled = false
+//        flutterRadio.isEnabled = false
 
         langPanel.add(kotlinRadio)
         langPanel.add(javaRadio)
@@ -87,8 +87,8 @@ class CreateCleanArchitectureDialog(project: Project) : DialogWrapper(project, t
         diGroup.add(daggerRadio)
 
         // disable others, keep Hilt enabled & selected
-        koinRadio.isEnabled = false
-        daggerRadio.isEnabled = false
+//        koinRadio.isEnabled = false
+//        daggerRadio.isEnabled = false
 
         diPanel.add(hiltRadio)
         diPanel.add(koinRadio)
