@@ -29,6 +29,11 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
 
+        <notificationGroup
+                id="CleanArchitectureGenerator"
+                displayType="BALLOON"
+                isLogByDefault="true"/>
+
     </extensions>
 
     <!-- 👇 المهم: الـ actions تبقى برّه extensions -->

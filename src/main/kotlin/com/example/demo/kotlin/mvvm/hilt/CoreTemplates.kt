@@ -1,4 +1,4 @@
-package com.example.demo.helpers
+package com.example.demo.kotlin.mvvm.hilt
 
 
 object CoreTemplates {
