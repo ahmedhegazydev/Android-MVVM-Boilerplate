@@ -1,5 +1,7 @@
 package com.example.demo
 
+import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
+import com.example.demo.flutter.mvvm.provider.ProviderFlutterStrategy
 import com.example.demo.helpers.NameUtils.toCamelCase
 import com.example.demo.helpers.NameUtils.toPascalCase
 import com.example.demo.helpers.NameUtils.toSnakeCase
@@ -24,22 +26,37 @@ object FileGenerator {
         DaggerDiStrategy  // Java + Dagger
     )
 
+    private val flutterStrategies: List<FlutterMvvmStrategy> = listOf(
+        ProviderFlutterStrategy,
+        RiverpodFlutterStrategy,
+        GetItFlutterStrategy
+    )
+
     fun generate(project: Project, config: CleanArchitectureConfig) {
         val baseDir = project.baseDir ?: return
-        val psiManager = PsiManager.getInstance(project)
 
-        val srcRoot = VfsUtil.findRelativeFile(baseDir, "app", "src", "main", "java") ?: return
-        val psiSrcRoot = psiManager.findDirectory(srcRoot) ?: return
+        when (config.language) {
+            CleanArchitectureConfig.Language.FLUTTER -> {
+                val flutterStrategy = flutterStrategies.firstOrNull { it.id == config.di } ?: return
+                flutterStrategy.generateFeature(project, config)
+                return
+            }
 
-        val diStrategy = diStrategies.firstOrNull { it.id == config.di } ?: return
+            CleanArchitectureConfig.Language.KOTLIN,
+            CleanArchitectureConfig.Language.JAVA -> {
+                // شغل أندرويد زي ما هو
+                val psiManager = PsiManager.getInstance(project)
+                val srcRoot = VfsUtil.findRelativeFile(baseDir, "app", "src", "main", "java") ?: return
+                val psiSrcRoot = psiManager.findDirectory(srcRoot) ?: return
 
-        // 1) Core files
-        ensureCoreFiles(psiSrcRoot, diStrategy, config.language)
+                val diStrategy = diStrategies.firstOrNull { it.id == config.di } ?: return
 
-        // 2) Feature
-        generateFeature(project, psiSrcRoot, config, diStrategy)
+                ensureCoreFiles(psiSrcRoot, diStrategy, config.language)
+                generateFeature(project, psiSrcRoot, config, diStrategy)
+            }
+        }
     }
-
+}
     private fun generateFeature(
         project: Project,
         psiSrcRoot: PsiDirectory,
