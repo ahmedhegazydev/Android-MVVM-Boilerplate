@@ -1,5 +1,7 @@
 package com.example.demo.flutter.mvvm.provider
 
+import com.example.demo.CleanArchitectureConfig
+
 object ProviderTemplates {
 
     fun domainModel(featurePascal: String, featureSnake: String) = """
@@ -72,9 +74,9 @@ object ProviderTemplates {
     """.trimIndent()
 
     fun viewModel(featurePascal: String, featureSnake: String) = """
-      import 'package:flutter/foundation.dart';
-      import 'get_${featureSnake}_list_usecase.dart';
-      import '${featureSnake}_model.dart';
+     import 'package:flutter/foundation.dart';
+     import '../../domain/usecase/get_${'$'}{featureSnake}_list_usecase.dart';
+     import '../../domain/model/${'$'}{featureSnake}_model.dart';
 
       class ${featurePascal}ViewModel extends ChangeNotifier {
         final Get${featurePascal}ListUseCase _useCase;
@@ -103,44 +105,69 @@ object ProviderTemplates {
       }
     """.trimIndent()
 
-    fun screen(featurePascal: String, featureSnake: String, featureCamel: String) = """
-      import 'package:flutter/material.dart';
-      import 'package:provider/provider.dart';
-      import '${featureSnake}_view_model.dart';
+    fun screen(
+        featurePascal: String,
+        featureSnake: String,
+        featureCamel: String,
+        di: CleanArchitectureConfig.DependencyInjection
+    ) = """
+  import 'package:flutter/material.dart';
+  import 'package:provider/provider.dart';
+import '../viewmodel/${'$'}{featureSnake}_view_model.dart';
+  ${
+        if (di == CleanArchitectureConfig.DependencyInjection.GET_IT)
+            "import 'package:get_it/get_it.dart';"
+        else
+            ""
+    }
 
-      class ${featurePascal}Screen extends StatelessWidget {
-        const ${featurePascal}Screen({super.key});
+  class ${featurePascal}Screen extends StatelessWidget {
+    const ${featurePascal}Screen({super.key});
 
-        @override
-        Widget build(BuildContext context) {
-          return ChangeNotifierProvider(
-            create: (_) => ${featurePascal}ViewModel(
-              // TODO: inject Get${featurePascal}ListUseCase here (GetIt, etc.)
-              throw UnimplementedError(),
-            ),
-            child: Consumer<${featurePascal}ViewModel>(
-              builder: (context, vm, _) {
-                if (vm.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+    @override
+    Widget build(BuildContext context) {
+      return ChangeNotifierProvider(
+        create: (_) => ${featurePascal}ViewModel(
+          ${buildUseCaseInjection(featurePascal, featureSnake, di)}
+        )..fetch(),
+        child: Consumer<${featurePascal}ViewModel>(
+          builder: (context, vm, _) {
+            if (vm.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-                if (vm.error != null) {
-                  return Center(child: Text(vm.error!));
-                }
+            if (vm.error != null) {
+              return Center(child: Text(vm.error!));
+            }
 
-                return ListView.builder(
-                  itemCount: vm.items.length,
-                  itemBuilder: (context, index) {
-                    final item = vm.items[index];
-                    return ListTile(
-                      title: Text(item.name),
-                    );
-                  },
+            return ListView.builder(
+              itemCount: vm.items.length,
+              itemBuilder: (context, index) {
+                final item = vm.items[index];
+                return ListTile(
+                  title: Text(item.name),
                 );
               },
-            ),
-          );
-        }
-      }
-    """.trimIndent()
+            );
+          },
+        ),
+      );
+    }
+  }
+""".trimIndent()
+}
+
+private fun buildUseCaseInjection(
+    featurePascal: String,
+    featureSnake: String,
+    di: CleanArchitectureConfig.DependencyInjection
+): String {
+    val useCaseType = "Get${featurePascal}ListUseCase"
+    return when (di) {
+        CleanArchitectureConfig.DependencyInjection.GET_IT ->
+            "GetIt.I.get<$useCaseType>(),"
+
+        else ->
+            "// TODO: provide $useCaseType here (no DI selected)\n          throw UnimplementedError(),"
+    }
 }

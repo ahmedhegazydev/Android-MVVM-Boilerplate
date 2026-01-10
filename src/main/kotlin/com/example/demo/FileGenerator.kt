@@ -1,6 +1,7 @@
 package com.example.demo
 
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
+import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategyResolver
 import com.example.demo.flutter.mvvm.provider.ProviderFlutterStrategy
 import com.example.demo.helpers.NameUtils.toCamelCase
 import com.example.demo.helpers.NameUtils.toPascalCase
@@ -37,7 +38,7 @@ object FileGenerator {
 
         when (config.language) {
             CleanArchitectureConfig.Language.FLUTTER -> {
-                val flutterStrategy = flutterStrategies.firstOrNull { it.id == config.di } ?: return
+                val flutterStrategy = FlutterMvvmStrategyResolver.resolve(flutterStrategies, config)
                 flutterStrategy.generateFeature(project, config)
                 return
             }

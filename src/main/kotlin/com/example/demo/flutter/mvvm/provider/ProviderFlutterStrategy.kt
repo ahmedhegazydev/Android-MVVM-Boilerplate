@@ -7,15 +7,18 @@ import com.example.demo.helpers.NameUtils.toPascalCase
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiManager
 
 object ProviderFlutterStrategy : FlutterMvvmStrategy {
 
-    override val id: CleanArchitectureConfig.DependencyInjection =
-        CleanArchitectureConfig.DependencyInjection.GET_IT
+    override val supportedDi = setOf(
+        CleanArchitectureConfig.DependencyInjection.GET_IT,
+        CleanArchitectureConfig.DependencyInjection.NONE,
+    )
 
-    override val stateManagement: CleanArchitectureConfig.StateManagement
-            =  CleanArchitectureConfig.StateManagement.PROVIDER
+    override val stateManagement =
+        CleanArchitectureConfig.StateManagement.PROVIDER
 
     override fun generateFeature(project: Project, config: CleanArchitectureConfig) {
         val baseDir = project.baseDir ?: return
@@ -35,7 +38,8 @@ object ProviderFlutterStrategy : FlutterMvvmStrategy {
 
         val dataDir = featureDir.findSubdirectory("data") ?: featureDir.createSubdirectory("data")
         val domainDir = featureDir.findSubdirectory("domain") ?: featureDir.createSubdirectory("domain")
-        val presentationDir = featureDir.findSubdirectory("presentation") ?: featureDir.createSubdirectory("presentation")
+        val presentationDir =
+            featureDir.findSubdirectory("presentation") ?: featureDir.createSubdirectory("presentation")
 
         val modelDir = domainDir.findSubdirectory("model") ?: domainDir.createSubdirectory("model")
         val useCaseDir = domainDir.findSubdirectory("usecase") ?: domainDir.createSubdirectory("usecase")
@@ -80,12 +84,13 @@ object ProviderFlutterStrategy : FlutterMvvmStrategy {
 
         uiDir.createFileIfNotExists(
             "${featureSnake}_screen.dart",
-            ProviderTemplates.screen(featurePascal, featureSnake, featureCamel)
+            ProviderTemplates.screen(featurePascal, featureSnake, featureCamel, config.di)
         )
+
     }
 }
 
-private fun com.intellij.psi.PsiDirectory.createFileIfNotExists(
+private fun PsiDirectory.createFileIfNotExists(
     fileName: String,
     content: String
 ): com.intellij.psi.PsiFile {
