@@ -2,7 +2,7 @@ package com.example.demo
 
 import com.example.demo.flutter.mvvm.bloc.BlocFlutterStrategy
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
-import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategyResolver
+import com.example.demo.flutter.mvvm.core.FlutterStrategyRegistry
 import com.example.demo.flutter.mvvm.cubit.CubitFlutterStrategy
 import com.example.demo.flutter.mvvm.provider.ProviderFlutterStrategy
 import com.example.demo.flutter.mvvm.riverpod.RiverpodFlutterStrategy
@@ -30,21 +30,14 @@ object FileGenerator {
         DaggerDiStrategy  // Java + Dagger
     )
 
-    private val flutterStrategies: List<FlutterMvvmStrategy> = listOf(
-        ProviderFlutterStrategy,
-        RiverpodFlutterStrategy,
-        CubitFlutterStrategy,
-        BlocFlutterStrategy
-    )
 
     fun generate(project: Project, config: CleanArchitectureConfig) {
         val baseDir = project.baseDir ?: return
 
         when (config.language) {
             CleanArchitectureConfig.Language.FLUTTER -> {
-                val flutterStrategy = FlutterMvvmStrategyResolver.resolve(flutterStrategies, config)
+                val flutterStrategy = FlutterStrategyRegistry.resolve(config)
                 flutterStrategy.generateFeature(project, config)
-                return
             }
 
             CleanArchitectureConfig.Language.KOTLIN,
@@ -441,64 +434,6 @@ object FileGenerator {
         }
     }
 
-
-    private fun updateAppDatabaseImports(document: Document, psiFile: PsiFile, featurePascal: String) {
-        val featureLower = featurePascal.lowercase()
-        val importLine = "import features.$featureLower.data.local.entity.${featurePascal}Entity"
-
-        val text = document.text
-        if (text.contains(importLine)) return
-
-        val packageIndex = text.indexOf("package ")
-        val firstImportIndex = text.indexOf("import ", startIndex = packageIndex)
-
-        val insertOffset = if (firstImportIndex != -1) firstImportIndex else text.indexOf('\n', packageIndex) + 1
-
-        document.insertString(insertOffset, "$importLine\n")
-    }
-
-    private fun updateAppDatabaseEntities(document: Document, entityName: String) {
-        val text = document.text
-        val annotationIndex = text.indexOf("@Database(")
-        if (annotationIndex == -1) return
-
-        val entitiesIndex = text.indexOf("entities", startIndex = annotationIndex)
-        if (entitiesIndex == -1) return
-
-        val startBracket = text.indexOf('[', startIndex = entitiesIndex)
-        val endBracket = text.indexOf(']', startIndex = startBracket)
-        if (startBracket == -1 || endBracket == -1) return
-
-        val currentEntities = text.substring(startBracket + 1, endBracket).trim()
-
-        // Already added?
-        if (currentEntities.contains("$entityName::class")) return
-
-        val newEntities = when {
-            currentEntities.isEmpty() -> "$entityName::class"
-            else -> "$currentEntities, $entityName::class"
-        }
-
-        document.replaceString(startBracket + 1, endBracket, " $newEntities ")
-    }
-
-    private fun updateAppDatabaseDaoMethod(
-        document: Document,
-        featureCamel: String,
-        daoName: String
-    ) {
-        val text = document.text
-        val methodSignature = "abstract fun ${featureCamel}Dao()"
-
-        if (text.contains(methodSignature)) return
-
-        val classEndIndex = text.lastIndexOf('}')
-        if (classEndIndex == -1) return
-
-        val insertText = "\n    abstract fun ${featureCamel}Dao(): $daoName\n"
-
-        document.insertString(classEndIndex, insertText)
-    }
 
     private fun updateNavGraphForFeature(
         project: Project,

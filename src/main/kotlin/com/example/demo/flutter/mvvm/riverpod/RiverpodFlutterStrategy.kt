@@ -3,6 +3,7 @@ package com.example.demo.flutter.mvvm.riverpod
 
 import com.example.demo.CleanArchitectureConfig
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
+import com.example.demo.flutter.mvvm.core.FlutterStrategyRegistry
 import com.example.demo.helpers.NameUtils.toPascalCase
 import com.example.demo.helpers.NameUtils.toSnakeCase
 import com.example.demo.helpers.createFileIfNotExists
@@ -11,6 +12,10 @@ import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
 
 object RiverpodFlutterStrategy : FlutterMvvmStrategy {
+
+    init {
+        FlutterStrategyRegistry.register(this)
+    }
 
     override val supportedDi = setOf(
         CleanArchitectureConfig.DependencyInjection.GET_IT,
