@@ -5,6 +5,7 @@ data class CleanArchitectureConfig(
     val className: String,
     val language: Language,
     val di: DependencyInjection,
+    val state: StateManagement? = null, // Flutter only (nullable for Kotlin/Java)
 ) {
 
     enum class Language {

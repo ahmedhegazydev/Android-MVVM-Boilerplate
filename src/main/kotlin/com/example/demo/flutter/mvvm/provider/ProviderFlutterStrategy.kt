@@ -12,7 +12,10 @@ import com.intellij.psi.PsiManager
 object ProviderFlutterStrategy : FlutterMvvmStrategy {
 
     override val id: CleanArchitectureConfig.DependencyInjection =
-        CleanArchitectureConfig.DependencyInjection.PROVIDER
+        CleanArchitectureConfig.DependencyInjection.GET_IT
+
+    override val stateManagement: CleanArchitectureConfig.StateManagement
+            =  CleanArchitectureConfig.StateManagement.PROVIDER
 
     override fun generateFeature(project: Project, config: CleanArchitectureConfig) {
         val baseDir = project.baseDir ?: return
