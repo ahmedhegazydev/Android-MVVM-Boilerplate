@@ -1,10 +1,19 @@
 package com.example.demo.flutter.mvvm.core
 
 import com.example.demo.CleanArchitectureConfig
+import com.example.demo.flutter.mvvm.bloc.BlocFlutterStrategy
+import com.example.demo.flutter.mvvm.cubit.CubitFlutterStrategy
+import com.example.demo.flutter.mvvm.provider.ProviderFlutterStrategy
+import com.example.demo.flutter.mvvm.riverpod.RiverpodFlutterStrategy
 
 object FlutterStrategyRegistry {
 
-    private val strategies = mutableListOf<FlutterMvvmStrategy>()
+    private var strategies: List<FlutterMvvmStrategy> = listOf(
+        BlocFlutterStrategy,
+        CubitFlutterStrategy,
+        ProviderFlutterStrategy,
+        RiverpodFlutterStrategy,
+    )
 
     fun register(strategy: FlutterMvvmStrategy) {
         strategies += strategy

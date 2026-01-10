@@ -1,19 +1,12 @@
 package com.example.demo
 
-import com.example.demo.flutter.mvvm.bloc.BlocFlutterStrategy
-import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
 import com.example.demo.flutter.mvvm.core.FlutterStrategyRegistry
-import com.example.demo.flutter.mvvm.cubit.CubitFlutterStrategy
-import com.example.demo.flutter.mvvm.provider.ProviderFlutterStrategy
-import com.example.demo.flutter.mvvm.riverpod.RiverpodFlutterStrategy
+import com.example.demo.helpers.DiStrategyRegistry
 import com.example.demo.helpers.NameUtils.toCamelCase
 import com.example.demo.helpers.NameUtils.toPascalCase
 import com.example.demo.helpers.NameUtils.toSnakeCase
-import com.example.demo.java.mvvm.dagger.DaggerDiStrategy
 import com.example.demo.java.mvvm.dagger.JavaFeatureTemplates
 import com.example.demo.kotlin.mvvm.core.DiStrategy
-import com.example.demo.kotlin.mvvm.hilt.HiltDiStrategy
-import com.example.demo.kotlin.mvvm.koin.KoinDiStrategy
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
@@ -23,12 +16,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 
 object FileGenerator {
-
-    private val diStrategies: List<DiStrategy> = listOf(
-        HiltDiStrategy,   // Kotlin + Hilt
-        KoinDiStrategy,   // Kotlin + Koin
-        DaggerDiStrategy  // Java + Dagger
-    )
 
 
     fun generate(project: Project, config: CleanArchitectureConfig) {
@@ -47,7 +34,7 @@ object FileGenerator {
                 val srcRoot = VfsUtil.findRelativeFile(baseDir, "app", "src", "main", "java") ?: return
                 val psiSrcRoot = psiManager.findDirectory(srcRoot) ?: return
 
-                val diStrategy = diStrategies.firstOrNull { it.id == config.di } ?: return
+                val diStrategy = DiStrategyRegistry.resolve(config)
 
                 ensureCoreFiles(psiSrcRoot, diStrategy, config.language)
                 generateFeature(project, psiSrcRoot, config, diStrategy)

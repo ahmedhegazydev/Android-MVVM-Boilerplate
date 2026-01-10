@@ -1,78 +1,29 @@
 package com.example.demo.flutter.mvvm.bloc
 
 import com.example.demo.CleanArchitectureConfig
+import com.example.demo.flutter.mvvm.shared.FeaturePathProfiles
+import com.example.demo.flutter.mvvm.shared.FeatureTemplates
 
 object BlocTemplates {
 
-    fun domainModel(featurePascal: String, featureSnake: String) = """
-      class $featurePascal {
-        final int id;
-        final String name;
+    private val paths = FeaturePathProfiles.MVVM
 
-        const $featurePascal({
-          required this.id,
-          required this.name,
-        });
-      }
-    """.trimIndent()
+    fun domainModel(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.domainModel(featurePascal)
 
-    fun domainRepository(featurePascal: String, featureSnake: String) = """
-      import '../model/${featureSnake}_model.dart';
+    fun domainRepository(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.domainRepository(featurePascal, featureSnake, paths)
 
-      abstract class ${featurePascal}Repository {
-        Future<List<$featurePascal>> get${featurePascal}List();
-      }
-    """.trimIndent()
+    fun useCase(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.useCase(featurePascal, featureSnake, paths)
 
-    fun useCase(featurePascal: String, featureSnake: String) = """
-      import '../repository/${featureSnake}_repository.dart';
-      import '../model/${featureSnake}_model.dart';
+    fun apiService(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.apiService(featurePascal, featureSnake, paths)
 
-      class Get${featurePascal}ListUseCase {
-        final ${featurePascal}Repository repository;
+    fun repositoryImpl(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.repositoryImpl(featurePascal, featureSnake, paths)
 
-        Get${featurePascal}ListUseCase(this.repository);
-
-        Future<List<$featurePascal>> call() {
-          return repository.get${featurePascal}List();
-        }
-      }
-    """.trimIndent()
-
-    fun apiService(featurePascal: String, featureSnake: String) = """
-      import 'package:dio/dio.dart';
-      import '../../domain/model/${featureSnake}_model.dart';
-
-      class ${featurePascal}ApiService {
-        final Dio _dio;
-
-        ${featurePascal}ApiService(this._dio);
-
-        Future<List<$featurePascal>> get${featurePascal}List() async {
-          final response = await _dio.get('/$featureSnake');
-          // TODO: parse response
-          return [];
-        }
-      }
-    """.trimIndent()
-
-    fun repositoryImpl(featurePascal: String, featureSnake: String) = """
-      import '../../domain/repository/${featureSnake}_repository.dart';
-      import '../../domain/model/${featureSnake}_model.dart';
-      import '../remote/${featureSnake}_api_service.dart';
-
-      class ${featurePascal}RepositoryImpl implements ${featurePascal}Repository {
-        final ${featurePascal}ApiService api;
-
-        ${featurePascal}RepositoryImpl(this.api);
-
-        @override
-        Future<List<$featurePascal>> get${featurePascal}List() async {
-          return api.get${featurePascal}List();
-        }
-      }
-    """.trimIndent()
-
+    // bloc-only
     fun event(featurePascal: String) = """
       abstract class ${featurePascal}Event {
         const ${featurePascal}Event();
@@ -83,33 +34,8 @@ object BlocTemplates {
       }
     """.trimIndent()
 
-    fun state(featurePascal: String, featureSnake: String) = """
-      import '../../domain/model/${featureSnake}_model.dart';
-
-      class ${featurePascal}State {
-        final bool loading;
-        final String? error;
-        final List<$featurePascal> items;
-
-        const ${featurePascal}State({
-          this.loading = false,
-          this.error,
-          this.items = const [],
-        });
-
-        ${featurePascal}State copyWith({
-          bool? loading,
-          String? error,
-          List<$featurePascal>? items,
-        }) {
-          return ${featurePascal}State(
-            loading: loading ?? this.loading,
-            error: error,
-            items: items ?? this.items,
-          );
-        }
-      }
-    """.trimIndent()
+    fun state(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.simpleListState(featurePascal, featureSnake, paths)
 
     fun bloc(featurePascal: String, featureSnake: String) = """
       import 'package:flutter_bloc/flutter_bloc.dart';
@@ -143,13 +69,7 @@ object BlocTemplates {
     fun screen(featurePascal: String, featureSnake: String, di: CleanArchitectureConfig.DependencyInjection) = """
       import 'package:flutter/material.dart';
       import 'package:flutter_bloc/flutter_bloc.dart';
-      ${
-        if (di == CleanArchitectureConfig.DependencyInjection.GET_IT)
-            "import 'package:get_it/get_it.dart';"
-        else
-            ""
-    }
-      import '../../domain/usecase/get_${featureSnake}_list_usecase.dart';
+      ${FeatureTemplates.getItImport(di)}
       import '../viewmodel/${featureSnake}_bloc.dart';
       import '../viewmodel/${featureSnake}_event.dart';
       import '../viewmodel/${featureSnake}_state.dart';
@@ -161,7 +81,7 @@ object BlocTemplates {
         Widget build(BuildContext context) {
           return BlocProvider(
             create: (_) => ${featurePascal}Bloc(
-              ${useCaseInjection(featurePascal, di)}
+              ${FeatureTemplates.useCaseInjection(featurePascal, di)}
             )..add(const ${featurePascal}FetchRequested()),
             child: BlocBuilder<${featurePascal}Bloc, ${featurePascal}State>(
               builder: (context, state) {
@@ -177,9 +97,7 @@ object BlocTemplates {
                   itemCount: state.items.length,
                   itemBuilder: (context, index) {
                     final item = state.items[index];
-                    return ListTile(
-                      title: Text(item.name),
-                    );
+                    return ListTile(title: Text(item.name));
                   },
                 );
               },
@@ -188,15 +106,4 @@ object BlocTemplates {
         }
       }
     """.trimIndent()
-
-    private fun useCaseInjection(featurePascal: String, di: CleanArchitectureConfig.DependencyInjection): String {
-        val useCaseType = "Get${featurePascal}ListUseCase"
-        return when (di) {
-            CleanArchitectureConfig.DependencyInjection.GET_IT ->
-                "GetIt.I.get<$useCaseType>(),"
-
-            else ->
-                "// TODO: provide $useCaseType here (no DI selected)\n              throw UnimplementedError(),"
-        }
-    }
 }

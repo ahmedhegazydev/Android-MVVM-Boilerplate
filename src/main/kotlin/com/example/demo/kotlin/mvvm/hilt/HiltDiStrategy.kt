@@ -1,14 +1,19 @@
 package com.example.demo.kotlin.mvvm.hilt
 
 import com.example.demo.CleanArchitectureConfig
+import com.example.demo.helpers.DiStrategyRegistry
+import com.example.demo.helpers.createFileIfNotExists
 import com.example.demo.kotlin.mvvm.core.CommonCoreTemplates
 import com.example.demo.kotlin.mvvm.core.DiStrategy
 import com.intellij.psi.PsiDirectory
 
 object HiltDiStrategy : DiStrategy {
 
-    override val id: CleanArchitectureConfig.DependencyInjection =
-        CleanArchitectureConfig.DependencyInjection.HILT
+
+    override val id = CleanArchitectureConfig.DependencyInjection.HILT
+    override val language = CleanArchitectureConfig.Language.KOTLIN
+
+    init { DiStrategyRegistry.register(this) }
 
     override fun ensureCoreDiFiles(
         coreDir: PsiDirectory,
@@ -45,8 +50,3 @@ object HiltDiStrategy : DiStrategy {
     }
 }
 
-// helper extension (تقدر تحطها في ملف مشترك)
-private fun PsiDirectory.createFileIfNotExists(fileName: String, content: String) =
-    findFile(fileName) ?: createFile(fileName).also {
-        it.viewProvider.document?.setText(content.trimIndent())
-    }

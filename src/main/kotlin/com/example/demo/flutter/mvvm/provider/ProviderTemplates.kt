@@ -1,82 +1,33 @@
 package com.example.demo.flutter.mvvm.provider
 
 import com.example.demo.CleanArchitectureConfig
+import com.example.demo.flutter.mvvm.shared.FeaturePathProfiles
+import com.example.demo.flutter.mvvm.shared.FeatureTemplates
 
 object ProviderTemplates {
 
-    fun domainModel(featurePascal: String, featureSnake: String) = """
-      class $featurePascal {
-        final int id;
-        final String name;
+    private val paths = FeaturePathProfiles.FLAT
 
-        const $featurePascal({
-          required this.id,
-          required this.name,
-        });
-      }
-    """.trimIndent()
+    fun domainModel(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.domainModel(featurePascal)
 
-    fun domainRepository(featurePascal: String, featureSnake: String) = """
-      import '${featureSnake}_model.dart';
+    fun domainRepository(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.domainRepository(featurePascal, featureSnake, paths)
 
-      abstract class ${featurePascal}Repository {
-        Future<List<$featurePascal>> get${featurePascal}List();
-      }
-    """.trimIndent()
+    fun useCase(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.useCase(featurePascal, featureSnake, paths)
 
-    fun useCase(featurePascal: String, featureSnake: String) = """
-      import '${featureSnake}_repository.dart';
-      import '${featureSnake}_model.dart';
+    fun apiService(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.apiService(featurePascal, featureSnake, paths)
 
-      class Get${featurePascal}ListUseCase {
-        final ${featurePascal}Repository repository;
+    fun repositoryImpl(featurePascal: String, featureSnake: String) =
+        FeatureTemplates.repositoryImpl(featurePascal, featureSnake, paths)
 
-        Get${featurePascal}ListUseCase(this.repository);
-
-        Future<List<$featurePascal>> call() {
-          return repository.get${featurePascal}List();
-        }
-      }
-    """.trimIndent()
-
-    fun apiService(featurePascal: String, featureSnake: String) = """
-      import 'package:dio/dio.dart';
-      import '${featureSnake}_model.dart';
-
-      class ${featurePascal}ApiService {
-        final Dio _dio;
-
-        ${featurePascal}ApiService(this._dio);
-
-        Future<List<$featurePascal>> get${featurePascal}List() async {
-          final response = await _dio.get('/$featureSnake');
-          // TODO: parse JSON properly
-          return [];
-        }
-      }
-    """.trimIndent()
-
-    fun repositoryImpl(featurePascal: String, featureSnake: String) = """
-      import '${featureSnake}_repository.dart';
-      import '${featureSnake}_api_service.dart';
-      import '${featureSnake}_model.dart';
-
-      class ${featurePascal}RepositoryImpl implements ${featurePascal}Repository {
-        final ${featurePascal}ApiService api;
-
-        ${featurePascal}RepositoryImpl(this.api);
-
-        @override
-        Future<List<$featurePascal>> get${featurePascal}List() async {
-          return api.get${featurePascal}List();
-        }
-      }
-    """.trimIndent()
-
+    // Provider-only: ViewModel (ChangeNotifier)
     fun viewModel(featurePascal: String, featureSnake: String) = """
-     import 'package:flutter/foundation.dart';
-     import '../../domain/usecase/get_${'$'}{featureSnake}_list_usecase.dart';
-     import '../../domain/model/${'$'}{featureSnake}_model.dart';
+      import 'package:flutter/foundation.dart';
+      import '../../domain/usecase/get_${featureSnake}_list_usecase.dart';
+      import '../../domain/model/${featureSnake}_model.dart';
 
       class ${featurePascal}ViewModel extends ChangeNotifier {
         final Get${featurePascal}ListUseCase _useCase;
@@ -105,69 +56,48 @@ object ProviderTemplates {
       }
     """.trimIndent()
 
+    // Provider-only: Screen
     fun screen(
         featurePascal: String,
         featureSnake: String,
         featureCamel: String,
         di: CleanArchitectureConfig.DependencyInjection
     ) = """
-  import 'package:flutter/material.dart';
-  import 'package:provider/provider.dart';
-import '../viewmodel/${'$'}{featureSnake}_view_model.dart';
-  ${
-        if (di == CleanArchitectureConfig.DependencyInjection.GET_IT)
-            "import 'package:get_it/get_it.dart';"
-        else
-            ""
-    }
+      import 'package:flutter/material.dart';
+      import 'package:provider/provider.dart';
+      ${FeatureTemplates.getItImport(di)}
+      import '../viewmodel/${featureSnake}_view_model.dart';
 
-  class ${featurePascal}Screen extends StatelessWidget {
-    const ${featurePascal}Screen({super.key});
+      class ${featurePascal}Screen extends StatelessWidget {
+        const ${featurePascal}Screen({super.key});
 
-    @override
-    Widget build(BuildContext context) {
-      return ChangeNotifierProvider(
-        create: (_) => ${featurePascal}ViewModel(
-          ${buildUseCaseInjection(featurePascal, featureSnake, di)}
-        )..fetch(),
-        child: Consumer<${featurePascal}ViewModel>(
-          builder: (context, vm, _) {
-            if (vm.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        @override
+        Widget build(BuildContext context) {
+          return ChangeNotifierProvider(
+            create: (_) => ${featurePascal}ViewModel(
+              ${FeatureTemplates.useCaseInjection(featurePascal, di)}
+            )..fetch(),
+            child: Consumer<${featurePascal}ViewModel>(
+              builder: (context, vm, _) {
+                if (vm.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-            if (vm.error != null) {
-              return Center(child: Text(vm.error!));
-            }
+                if (vm.error != null) {
+                  return Center(child: Text(vm.error!));
+                }
 
-            return ListView.builder(
-              itemCount: vm.items.length,
-              itemBuilder: (context, index) {
-                final item = vm.items[index];
-                return ListTile(
-                  title: Text(item.name),
+                return ListView.builder(
+                  itemCount: vm.items.length,
+                  itemBuilder: (context, index) {
+                    final item = vm.items[index];
+                    return ListTile(title: Text(item.name));
+                  },
                 );
               },
-            );
-          },
-        ),
-      );
-    }
-  }
-""".trimIndent()
-}
-
-private fun buildUseCaseInjection(
-    featurePascal: String,
-    featureSnake: String,
-    di: CleanArchitectureConfig.DependencyInjection
-): String {
-    val useCaseType = "Get${featurePascal}ListUseCase"
-    return when (di) {
-        CleanArchitectureConfig.DependencyInjection.GET_IT ->
-            "GetIt.I.get<$useCaseType>(),"
-
-        else ->
-            "// TODO: provide $useCaseType here (no DI selected)\n          throw UnimplementedError(),"
-    }
+            ),
+          );
+        }
+      }
+    """.trimIndent()
 }

@@ -1,14 +1,21 @@
 package com.example.demo.kotlin.mvvm.koin
 
 import com.example.demo.CleanArchitectureConfig
+import com.example.demo.helpers.DiStrategyRegistry
+import com.example.demo.helpers.createFileIfNotExists
 import com.example.demo.kotlin.mvvm.core.CommonCoreTemplates
 import com.example.demo.kotlin.mvvm.core.DiStrategy
 import com.intellij.psi.PsiDirectory
 
 object KoinDiStrategy : DiStrategy {
 
-    override val id: CleanArchitectureConfig.DependencyInjection =
-        CleanArchitectureConfig.DependencyInjection.KOIN
+
+    override val id = CleanArchitectureConfig.DependencyInjection.KOIN
+    override val language = CleanArchitectureConfig.Language.KOTLIN
+
+    init { DiStrategyRegistry.register(this) }
+
+
 
     override fun ensureCoreDiFiles(
         coreDir: PsiDirectory,
@@ -45,7 +52,3 @@ object KoinDiStrategy : DiStrategy {
     }
 }
 
-private fun PsiDirectory.createFileIfNotExists(fileName: String, content: String) =
-    findFile(fileName) ?: createFile(fileName).also {
-        it.viewProvider.document?.setText(content.trimIndent())
-    }

@@ -1,14 +1,21 @@
 package com.example.demo.java.mvvm.dagger
 
 import com.example.demo.CleanArchitectureConfig
+import com.example.demo.helpers.DiStrategyRegistry
+import com.example.demo.helpers.createFileIfNotExists
 import com.example.demo.java.mvvm.core.JavaCoreTemplates
 import com.example.demo.kotlin.mvvm.core.DiStrategy
 import com.intellij.psi.PsiDirectory
 
 object DaggerDiStrategy : DiStrategy {
 
-    override val id: CleanArchitectureConfig.DependencyInjection =
-        CleanArchitectureConfig.DependencyInjection.DAGGER
+
+    override val id = CleanArchitectureConfig.DependencyInjection.DAGGER
+    override val language = CleanArchitectureConfig.Language.JAVA
+
+    init { DiStrategyRegistry.register(this) }
+
+
 
     override fun ensureCoreDiFiles(
         coreDir: PsiDirectory,
@@ -45,7 +52,3 @@ object DaggerDiStrategy : DiStrategy {
     }
 }
 
-private fun PsiDirectory.createFileIfNotExists(fileName: String, content: String) =
-    findFile(fileName) ?: createFile(fileName).also {
-        it.viewProvider.document?.setText(content.trimIndent())
-    }
