@@ -1,8 +1,11 @@
 package com.example.demo
 
+import com.example.demo.flutter.mvvm.bloc.BlocFlutterStrategy
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategyResolver
+import com.example.demo.flutter.mvvm.cubit.CubitFlutterStrategy
 import com.example.demo.flutter.mvvm.provider.ProviderFlutterStrategy
+import com.example.demo.flutter.mvvm.riverpod.RiverpodFlutterStrategy
 import com.example.demo.helpers.NameUtils.toCamelCase
 import com.example.demo.helpers.NameUtils.toPascalCase
 import com.example.demo.helpers.NameUtils.toSnakeCase
@@ -29,8 +32,9 @@ object FileGenerator {
 
     private val flutterStrategies: List<FlutterMvvmStrategy> = listOf(
         ProviderFlutterStrategy,
-//        RiverpodFlutterStrategy,
-//        GetItFlutterStrategy
+        RiverpodFlutterStrategy,
+        CubitFlutterStrategy,
+        BlocFlutterStrategy
     )
 
     fun generate(project: Project, config: CleanArchitectureConfig) {

@@ -1,24 +1,24 @@
-package com.example.demo.flutter.mvvm.provider
+package com.example.demo.flutter.mvvm.riverpod
+
 
 import com.example.demo.CleanArchitectureConfig
-import com.example.demo.helpers.NameUtils.toCamelCase
-import com.example.demo.helpers.NameUtils.toSnakeCase
-import com.example.demo.helpers.NameUtils.toPascalCase
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
+import com.example.demo.helpers.NameUtils.toPascalCase
+import com.example.demo.helpers.NameUtils.toSnakeCase
+import com.example.demo.helpers.createFileIfNotExists
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiManager
 
-object ProviderFlutterStrategy : FlutterMvvmStrategy {
+object RiverpodFlutterStrategy : FlutterMvvmStrategy {
 
     override val supportedDi = setOf(
         CleanArchitectureConfig.DependencyInjection.GET_IT,
-        CleanArchitectureConfig.DependencyInjection.NONE,
+        CleanArchitectureConfig.DependencyInjection.NONE
     )
 
     override val stateManagement =
-        CleanArchitectureConfig.StateManagement.PROVIDER
+        CleanArchitectureConfig.StateManagement.RIVERPOD
 
     override fun generateFeature(project: Project, config: CleanArchitectureConfig) {
         val baseDir = project.baseDir ?: return
@@ -26,11 +26,9 @@ object ProviderFlutterStrategy : FlutterMvvmStrategy {
         val psiManager = PsiManager.getInstance(project)
         val psiLibDir = psiManager.findDirectory(libDir) ?: return
 
-        val featurePascal = config.className.toPascalCase()   // FooBar
-        val featureSnake = config.className.toSnakeCase()     // foo_bar
-        val featureCamel = config.className.toCamelCase()     // fooBar
+        val featurePascal = config.className.toPascalCase()
+        val featureSnake = config.className.toSnakeCase()
 
-        // lib/features/<feature_snake>/
         val featuresDir = psiLibDir.findSubdirectory("features")
             ?: psiLibDir.createSubdirectory("features")
         val featureDir = featuresDir.findSubdirectory(featureSnake)
@@ -42,8 +40,8 @@ object ProviderFlutterStrategy : FlutterMvvmStrategy {
             featureDir.findSubdirectory("presentation") ?: featureDir.createSubdirectory("presentation")
 
         val modelDir = domainDir.findSubdirectory("model") ?: domainDir.createSubdirectory("model")
-        val useCaseDir = domainDir.findSubdirectory("usecase") ?: domainDir.createSubdirectory("usecase")
         val repoDir = domainDir.findSubdirectory("repository") ?: domainDir.createSubdirectory("repository")
+        val useCaseDir = domainDir.findSubdirectory("usecase") ?: domainDir.createSubdirectory("usecase")
 
         val remoteDir = dataDir.findSubdirectory("remote") ?: dataDir.createSubdirectory("remote")
         val repoImplDir = dataDir.findSubdirectory("repository") ?: dataDir.createSubdirectory("repository")
@@ -51,42 +49,44 @@ object ProviderFlutterStrategy : FlutterMvvmStrategy {
         val uiDir = presentationDir.findSubdirectory("ui") ?: presentationDir.createSubdirectory("ui")
         val vmDir = presentationDir.findSubdirectory("viewmodel") ?: presentationDir.createSubdirectory("viewmodel")
 
-        // ===== Dart files (as Strings) =====
         modelDir.createFileIfNotExists(
             "${featureSnake}_model.dart",
-            ProviderTemplates.domainModel(featurePascal, featureSnake)
+            RiverpodTemplates.domainModel(featurePascal, featureSnake)
         )
 
         repoDir.createFileIfNotExists(
             "${featureSnake}_repository.dart",
-            ProviderTemplates.domainRepository(featurePascal, featureSnake)
+            RiverpodTemplates.domainRepository(featurePascal, featureSnake)
         )
 
         useCaseDir.createFileIfNotExists(
             "get_${featureSnake}_list_usecase.dart",
-            ProviderTemplates.useCase(featurePascal, featureSnake)
+            RiverpodTemplates.useCase(featurePascal, featureSnake)
         )
 
         remoteDir.createFileIfNotExists(
             "${featureSnake}_api_service.dart",
-            ProviderTemplates.apiService(featurePascal, featureSnake)
+            RiverpodTemplates.apiService(featurePascal, featureSnake)
         )
 
         repoImplDir.createFileIfNotExists(
             "${featureSnake}_repository_impl.dart",
-            ProviderTemplates.repositoryImpl(featurePascal, featureSnake)
+            RiverpodTemplates.repositoryImpl(featurePascal, featureSnake)
         )
 
         vmDir.createFileIfNotExists(
-            "${featureSnake}_view_model.dart",
-            ProviderTemplates.viewModel(featurePascal, featureSnake)
+            "${featureSnake}_state_notifier.dart",
+            RiverpodTemplates.viewModel(featurePascal, featureSnake)
+        )
+
+        vmDir.createFileIfNotExists(
+            "${featureSnake}_providers.dart",
+            RiverpodTemplates.providers(featurePascal, featureSnake, config.di)
         )
 
         uiDir.createFileIfNotExists(
             "${featureSnake}_screen.dart",
-            ProviderTemplates.screen(featurePascal, featureSnake, featureCamel, config.di)
+            RiverpodTemplates.screen(featurePascal, featureSnake)
         )
-
     }
 }
-
