@@ -4,8 +4,8 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.7.1"
 }
 
-group = "com.example"
-version = "1.0-SNAPSHOT"
+group = "dev.ahmedhegazy.intellij"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -14,18 +14,10 @@ repositories {
     }
 }
 
-// Configure IntelliJ Platform Gradle Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
     intellijPlatform {
-//        create("IC", "2025.1.4.1")
-
-        // Use Android Studio instead of IntelliJ Community
-        androidStudio("2025.1.4.1")   // use the exact version of your AS
-
+        androidStudio("2025.1.4.1")
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
-
-        // Add necessary plugin dependencies for compilation here, example:
          bundledPlugin("com.intellij.java")
     }
 }
@@ -37,13 +29,39 @@ intellijPlatform {
         }
 
         changeNotes = """
-            Initial version
+            <b>Initial public release</b>
+            <ul>
+                <li>Android MVVM feature generation (Kotlin & Java)</li>
+                <li>Flutter MVVM generators:
+                    <ul>
+                        <li>Provider</li>
+                        <li>Riverpod</li>
+                        <li>Cubit</li>
+                        <li>BLoC</li>
+                    </ul>
+                </li>
+                <li>Dependency Injection support:
+                    <ul>
+                        <li>Hilt</li>
+                        <li>Koin</li>
+                        <li>Dagger</li>
+                        <li>GetIt</li>
+                    </ul>
+                </li>
+                <li>Clean Architecture folder structure (Data / Domain / Presentation)</li>
+                <li>Production-ready boilerplate with minimal setup</li>
+            </ul>
         """.trimIndent()
+    }
+
+    publishing {
+        token.set(System.getenv("JETBRAINS_TOKEN"))
     }
 }
 
+
+
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
         sourceCompatibility = "21"
         targetCompatibility = "21"

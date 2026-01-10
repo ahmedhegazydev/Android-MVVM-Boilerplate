@@ -1,48 +1,79 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<!-- Plugin Configuration File. Read more:
+     https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>com.example.demo</id>
 
-    <!-- Public plugin name should be written in Title Case.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Demo</name>
+    <id>dev.ahmedhegazy.clean-architecture-generator</id>
 
-    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-    <vendor url="https://www.yourcompany.com">YourCompany</vendor>
+    <name>Clean Architecture Generator</name>
 
-    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
-    <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
-    ]]></description>
+    <vendor
+            url="https://github.com/ahmedhegazydev"
+            email="ahmedmhegazy.eg@gmail.com">
+        Ahmed Hegazy
+    </vendor>
 
-    <!-- Product and plugin compatibility requirements.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <description>
+        <![CDATA[
+        <p>
+            Generate production-ready <b>Clean Architecture (MVVM)</b> boilerplate
+            for <b>Android</b> and <b>Flutter</b> projects directly from the IDE.
+        </p>
+
+        <p>
+            The plugin helps developers quickly scaffold well-structured features
+            following clean architecture principles, reducing setup time and
+            enforcing consistent architectural patterns.
+        </p>
+
+        <p><b>Supported platforms:</b></p>
+        <ul>
+            <li><b>Android</b>: Kotlin (Hilt, Koin), Java (Dagger)</li>
+            <li><b>Flutter</b>: Provider, Riverpod, Cubit, BLoC</li>
+        </ul>
+
+        <p><b>Key features:</b></p>
+        <ul>
+            <li>MVVM-based feature generation</li>
+            <li>Clean separation of Data, Domain, and Presentation layers</li>
+            <li>Dependency Injection support per platform</li>
+            <li>Consistent folder and file naming conventions</li>
+            <li>Ready-to-use boilerplate with minimal manual setup</li>
+        </ul>
+        ]]>
+    </description>
+
+    <change-notes>
+        <![CDATA[
+        <b>Initial public release</b>
+        <ul>
+            <li>Android MVVM feature generation (Kotlin & Java)</li>
+            <li>Flutter MVVM generators with Provider, Riverpod, Cubit, and BLoC</li>
+            <li>Dependency Injection support (Hilt, Koin, Dagger, GetIt)</li>
+        </ul>
+        ]]>
+    </change-notes>
+
     <depends>com.intellij.modules.platform</depends>
-
-    <!-- 👇 عشان تقدر تشير لـ NewClass -->
     <depends>com.intellij.modules.java</depends>
     <depends>com.intellij.modules.androidstudio</depends>
 
-    <!-- Extension points defined by the plugin.
-         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-
         <notificationGroup
                 id="CleanArchitectureGenerator"
                 displayType="BALLOON"
                 isLogByDefault="true"/>
-
     </extensions>
 
-    <!-- 👇 المهم: الـ actions تبقى برّه extensions -->
     <actions>
-        <action id="CleanArchitectureGeneratorAction"
+        <action
+                id="CleanArchitectureGeneratorAction"
                 class="com.example.demo.CleanArchitectureAction"
-                text="Create Clean Architecture"
-                description="Generate MVVM + Hilt project structure">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewClass"/>
+                text="Create Clean Architecture Feature"
+                description="Generate Clean Architecture (MVVM) feature structure">
+            <add-to-group
+                    group-id="NewGroup"
+                    anchor="after"
+                    relative-to-action="NewClass"/>
         </action>
     </actions>
 
