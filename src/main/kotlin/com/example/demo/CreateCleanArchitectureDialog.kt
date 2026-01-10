@@ -19,6 +19,16 @@ class CreateCleanArchitectureDialog(project: Project) : DialogWrapper(project, t
     private val diOption2Radio = JRadioButton()
     private val diOption3Radio = JRadioButton()
 
+    // Flutter: GetIt checkbox
+    private val getItCheckBox = JCheckBox("GetIt")
+
+    // Flutter: State management radios
+    private val stateLabel = JLabel("State Management (Flutter)")
+    private val riverpodRadio = JRadioButton("Riverpod", true)
+    private val providerRadio = JRadioButton("Provider")
+    private val blocRadio = JRadioButton("BLoC")
+    private val cubitRadio = JRadioButton("Cubit")
+
     private val diLabel = JLabel("Dependency Injection")
 
     private var currentLanguage: CleanArchitectureConfig.Language =
@@ -142,8 +152,6 @@ class CreateCleanArchitectureDialog(project: Project) : DialogWrapper(project, t
             CleanArchitectureConfig.Language.FLUTTER -> {
                 when {
                     diOption1Radio.isSelected -> CleanArchitectureConfig.DependencyInjection.GET_IT
-                    diOption2Radio.isSelected -> CleanArchitectureConfig.DependencyInjection.RIVERPOD
-                    diOption3Radio.isSelected -> CleanArchitectureConfig.DependencyInjection.PROVIDER
                     else -> CleanArchitectureConfig.DependencyInjection.NONE
                 }
             }

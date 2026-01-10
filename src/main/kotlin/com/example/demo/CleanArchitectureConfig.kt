@@ -21,10 +21,11 @@ data class CleanArchitectureConfig(
 
         // Flutter DI
         GET_IT,
-        RIVERPOD,
-        PROVIDER,
 
         // Fallback
         NONE,
     }
+
+    enum class StateManagement { RIVERPOD, PROVIDER, BLOC, CUBIT }
+
 }

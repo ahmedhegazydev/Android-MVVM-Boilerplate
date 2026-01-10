@@ -28,8 +28,8 @@ object FileGenerator {
 
     private val flutterStrategies: List<FlutterMvvmStrategy> = listOf(
         ProviderFlutterStrategy,
-        RiverpodFlutterStrategy,
-        GetItFlutterStrategy
+//        RiverpodFlutterStrategy,
+//        GetItFlutterStrategy
     )
 
     fun generate(project: Project, config: CleanArchitectureConfig) {
@@ -56,7 +56,8 @@ object FileGenerator {
             }
         }
     }
-}
+
+
     private fun generateFeature(
         project: Project,
         psiSrcRoot: PsiDirectory,
@@ -370,8 +371,10 @@ object FileGenerator {
         val (startBracketChar, endBracketChar, suffix) = when (language) {
             CleanArchitectureConfig.Language.KOTLIN ->
                 Triple('[', ']', "::class")
+
             CleanArchitectureConfig.Language.JAVA ->
                 Triple('{', '}', ".class")
+
             CleanArchitectureConfig.Language.FLUTTER ->
                 return
         }
@@ -432,7 +435,6 @@ object FileGenerator {
             }
         }
     }
-
 
 
     private fun updateAppDatabaseImports(document: Document, psiFile: PsiFile, featurePascal: String) {

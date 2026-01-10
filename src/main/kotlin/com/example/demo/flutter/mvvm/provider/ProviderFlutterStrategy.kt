@@ -4,7 +4,6 @@ import com.example.demo.CleanArchitectureConfig
 import com.example.demo.helpers.NameUtils.toCamelCase
 import com.example.demo.helpers.NameUtils.toSnakeCase
 import com.example.demo.helpers.NameUtils.toPascalCase
-import com.example.demo.flutter.core.FlutterMvvmStrategy
 import com.example.demo.flutter.mvvm.core.FlutterMvvmStrategy
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VfsUtil
